@@ -20,7 +20,9 @@ func main() {
 	var SelectLine int
 	KeyBordString := make(chan string, 1)
 
-	RoomId, GuardPrintColor, GiftPrintColor, GiftLinePrice, CommonPrintColor, Linekey := GetConfig()
+	//IsOnlyGift := 0
+
+	RoomId, GuardPrintColor, GiftPrintColor, GiftLinePrice, CommonPrintColor, Linekey, IsOnlyGift := GetConfig()
 
 	if len(RoomId) < 1 || GuardPrintColor < 1 || GiftPrintColor < 1 || GiftLinePrice < 0.01 || CommonPrintColor < 1 || len(Linekey) < 1 {
 		RoomId = "2233"
@@ -35,6 +37,8 @@ func main() {
 		if len(Linekey) == 0 {
 			Linekey = "排队"
 		}
+		fmt.Println("是否开启仅限礼物及舰长排队（开启后只有礼物用户及舰长会加入队列）输入1启用")
+		_, _ = fmt.Scanln(&IsOnlyGift)
 		fmt.Println("自定义颜色编号")
 		for i := 1; i < 7; i++ {
 			ColorPrint("这是测试字符"+" "+"编号"+strconv.Itoa(i), i)
@@ -63,9 +67,9 @@ func main() {
 			fmt.Println("请输入普通队列颜色[编号]")
 			_, _ = fmt.Scanln(&CommonPrintColor)
 		}
-		fmt.Println("请输入礼物队列触发价格(RMB)，只有单次礼物大于此价格才会被加入")
+		fmt.Println("请输入礼物队列触发价格(RMB)，只有单次或累计礼物大于此价格才会被加入")
 		_, _ = fmt.Scanln(&GiftLinePrice)
-		if SetConfig(RoomId, GuardPrintColor, GiftPrintColor, GiftLinePrice, CommonPrintColor, Linekey) {
+		if SetConfig(RoomId, GuardPrintColor, GiftPrintColor, GiftLinePrice, CommonPrintColor, Linekey, IsOnlyGift) {
 			fmt.Println("配置信息已保存，下次启动将自动读取")
 		} else {
 			fmt.Println("配置文件保存失败")
@@ -151,12 +155,14 @@ func main() {
 				})
 				lineup.GuardLine = removeRepeatElement(lineup.GuardLine)
 			} else {
-				lineup.CommonLine = append(lineup.CommonLine, &Line{
-					Uid:        danmaku.Sender.Uid,
-					UserName:   danmaku.Sender.Uname,
-					PrintColor: CommonPrintColor,
-				})
-				lineup.CommonLine = removeRepeatElement(lineup.CommonLine)
+				if IsOnlyGift != 1 {
+					lineup.CommonLine = append(lineup.CommonLine, &Line{
+						Uid:        danmaku.Sender.Uid,
+						UserName:   danmaku.Sender.Uname,
+						PrintColor: CommonPrintColor,
+					})
+					lineup.CommonLine = removeRepeatElement(lineup.CommonLine)
+				}
 			}
 			SetLine(lineup)
 

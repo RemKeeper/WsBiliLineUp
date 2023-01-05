@@ -20,9 +20,11 @@ type 配置文件 struct {
 	PsC              string
 	LineKey          string
 	PPs              string
+	IsOnlyGift       int
+	Ppps             string
 }
 
-func GetConfig() (Roomid string, GuardPrintColor, GiftPrintColor int, GiftLinePrice float64, CommonPrintColor int, Linekey string) {
+func GetConfig() (Roomid string, GuardPrintColor, GiftPrintColor int, GiftLinePrice float64, CommonPrintColor int, Linekey string, IsOnlyGift int) {
 	lineupConfigFile := "./lineupConfig.json"
 	Configinfo, OpenErr := os.Open(lineupConfigFile)
 	if OpenErr != nil {
@@ -40,13 +42,13 @@ func GetConfig() (Roomid string, GuardPrintColor, GiftPrintColor int, GiftLinePr
 			if err != nil {
 				return
 			}
-			return ConfigSetGet.RoomId, ConfigSetGet.GuardPrintColor, ConfigSetGet.GiftPrintColor, ConfigSetGet.GiftLinePrice, ConfigSetGet.CommonPrintColor, ConfigSetGet.LineKey
+			return ConfigSetGet.RoomId, ConfigSetGet.GuardPrintColor, ConfigSetGet.GiftPrintColor, ConfigSetGet.GiftLinePrice, ConfigSetGet.CommonPrintColor, ConfigSetGet.LineKey, ConfigSetGet.IsOnlyGift
 		}
 	}
 	return
 }
 
-func SetConfig(Roomid string, GuardPrintColor, GiftPrintColor int, GiftLinePrice float64, CommonPrintColor int, Linekey string) bool {
+func SetConfig(Roomid string, GuardPrintColor, GiftPrintColor int, GiftLinePrice float64, CommonPrintColor int, Linekey string, IsOnlyGift int) bool {
 	ConfigJsonType := 配置文件{
 		RoomId:           Roomid,
 		Ps:               "上面这个是房间号",
@@ -60,6 +62,8 @@ func SetConfig(Roomid string, GuardPrintColor, GiftPrintColor int, GiftLinePrice
 		PsC:              "上面这个是普通用户打印颜色",
 		LineKey:          Linekey,
 		PPs:              "上面这个是排队关键词",
+		IsOnlyGift:       IsOnlyGift,
+		Ppps:             "上面这个是仅限礼物以及舰长",
 	}
 	ConfigJson, _ := json.MarshalIndent(ConfigJsonType, "", " ")
 	fmt.Println(string(ConfigJson))
